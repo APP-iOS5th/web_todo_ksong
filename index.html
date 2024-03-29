@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ToDoList</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #f0f0f0; /* 배경색 설정 */
+    }
+    .completed {
+      text-decoration: line-through; /* 완료된 항목에 줄 그어주기 */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <h1 class="mt-5 text-center">| To Do List |</h1>
+        <!-- 입력 -->
+        <div class="input-group mb-3 mt-3">
+          <input type="text" class="form-control" id="todoInput" placeholder="추가는 할 일을 입력하신 후 + 삭제는 완료 후 -">
+          <button class="btn btn-dark" id="addTodo">+</button>
+          <button class="btn btn-secondary" id="deleteCompleted">-</button>
+        </div>
+        <!-- 할 일 목록 -->
+        <ul class="list-group" id="todoList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자바스크립트 -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+    crossorigin="anonymous"></script>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // 페이지 로드 시 저장된 할 일 불러오기
+      loadTodos()
+    })
+
+    // + 버튼 클릭 이벤트
+    document.getElementById('addTodo').addEventListener('click', function () {
+      var value = document.getElementById('todoInput').value;
+      if (value) {
+        addTodo(value)
+        document.getElementById('todoInput').value = "" // 입력 폼 초기화
+        storeTodos(); // 할 일 목록 저장
+      }
+    })
+
+    function addTodo(text) {
+      var list = document.getElementById('todoList')
+      var item = document.createElement('li')
+      item.innerText = text;
+      item.classList.add('list-group-item')
+
+      var checkbox = document.createElement('input'); // 체크박스 추가
+      checkbox.type = 'checkbox';
+      checkbox.classList.add('form-check-input', 'me-2');
+      checkbox.addEventListener('change', function () {
+        // 체크박스 변경 시 완료 상태 토글
+        if (checkbox.checked) {
+          item.classList.add('completed');
+        } else {
+          item.classList.remove('completed');
+        }
+        storeTodos(); // 할 일 목록 저장
+      });
+
+      item.insertBefore(checkbox, item.firstChild); // 체크박스 추가
+      list.appendChild(item)
+    }
+
+    function storeTodos() {
+      var todos = []
+      var todoList = document.getElementById('todoList')
+      for (var i = 0; i < todoList.children.length; i++) {
+        todos.push(todoList.children[i].innerText.trim()) // 투두리스트에 값 추가하는 코드
+      }
+      console.log(todos)
+      localStorage.setItem('todos', JSON.stringify(todos))
+    }
+
+    function loadTodos() {
+      var todos = JSON.parse(localStorage.getItem('todos'))
+      if (todos) {
+        todos.forEach(function (todo) { // todo 배열이 순환하면서 안에 전달한 함수 파라미터를 실행시켜주는거
+          addTodo(todo)
+        })
+      }
+    }
+
+    // 완료된 항목 삭제 버튼 클릭 이벤트
+    document.getElementById('deleteCompleted').addEventListener('click', function () {
+      var todoList = document.getElementById('todoList');
+      var completedItems = todoList.getElementsByClassName('completed');
+
+      // 완료된 항목 삭제
+      while (completedItems.length > 0) {
+        completedItems[0].remove();
+      }
+      storeTodos();
+    });
+    
+  </script>
+</body>
+
+</html>
